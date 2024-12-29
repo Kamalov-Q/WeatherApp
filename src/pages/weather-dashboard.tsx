@@ -2,12 +2,19 @@ import WeatherSkeleton from "@/components/loading";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button"
 import { useGeoLocation } from "@/hooks/useGeoLocation"
-import { AlertCircle, RefreshCcw } from "lucide-react"
+import { useReverseGeoCodeQuery } from "@/hooks/useWeather";
+import { AlertCircle, MapPin, RefreshCcw } from "lucide-react"
 
 const Weather = () => {
 
     const { error: locationError, isLoading: locationLoading, getLocation, coordinates } = useGeoLocation();
-  
+
+    const locationQuery = useReverseGeoCodeQuery(coordinates);
+    console.log(locationQuery, "Location Query");
+    
+    
+
+
     const handleRefresh = () => {
         getLocation();
         if (coordinates) {
@@ -20,16 +27,34 @@ const Weather = () => {
     }
 
     if (locationError) {
-        return <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Location Error</AlertTitle>
-            <AlertDescription>
-                {locationError}
-            </AlertDescription>
-        </Alert>
+        return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Location Error</AlertTitle>
+                <AlertDescription className="flex flex-col gap-4">
+                    <p>{locationError}</p>
+                    <Button onClick={getLocation} variant={"outline"} className="w-fit">
+                        <MapPin className="mr-2 h-4 w-4" />
+                    </Button>
+                </AlertDescription>
+            </Alert>
+        )
     }
 
-
+    if (!coordinates) {
+        return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Location Required</AlertTitle>
+                <AlertDescription className="flex flex-col gap-4">
+                    <p>Please enable location access to see your local weather.</p>
+                    <Button onClick={getLocation} variant={"outline"} className="w-fit">
+                        <MapPin className="mr-2 h-4 w-4" />
+                    </Button>
+                </AlertDescription>
+            </Alert>
+        )
+    }
 
     return (
         <div className="space-y-4">
